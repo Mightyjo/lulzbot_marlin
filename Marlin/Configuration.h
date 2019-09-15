@@ -515,7 +515,7 @@
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG LULZBOT_USE_XMIN_PLUG
 #define USE_YMIN_PLUG LULZBOT_USE_YMIN_PLUG
-#define USE_ZMIN_PLUG LULZBOT_USE_ZMIN_PLUG
+#define USE_ZMIN_PLUG 
 #define USE_XMAX_PLUG LULZBOT_USE_XMAX_PLUG
 #define USE_YMAX_PLUG LULZBOT_USE_YMAX_PLUG
 #define USE_ZMAX_PLUG LULZBOT_USE_ZMAX_PLUG
@@ -681,9 +681,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#ifdef LULZBOT_Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN LULZBOT_Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-#endif
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN 
 
 /**
  * Z_MIN_PROBE_ENDSTOP
@@ -704,11 +702,8 @@
  * disastrous consequences. Use with caution and do your homework.
  *
  */
- #ifdef LULZBOT_Z_MIN_PROBE_ENDSTOP
- #define Z_MIN_PROBE_ENDSTOP LULZBOT_Z_MIN_PROBE_ENDSTOP
- #define Z_MIN_PROBE_PIN     LULZBOT_Z_MIN_PROBE_PIN
- #endif
-
+ //#define Z_MIN_PROBE_ENDSTOP 
+ 
 /**
  * Probe Type
  *
@@ -728,7 +723,7 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#define FIX_MOUNTED_PROBE LULZBOT_FIX_MOUNTED_PROBE
+//#define FIX_MOUNTED_PROBE
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -739,9 +734,9 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH
 #if ENABLED(BLTOUCH)
-  //#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  #define BLTOUCH_DELAY 100   // (ms) Enable and increase if needed
 #endif
 
 /**
@@ -751,11 +746,11 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-//#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #if ENABLED(PROBING_HEATERS_OFF)
-  //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
+  #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
-//#define PROBING_FANS_OFF          // Turn fans off when probing
+#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
@@ -788,9 +783,9 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_X_PROBE_OFFSET_FROM_EXTRUDER  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Y_PROBE_OFFSET_FROM_EXTRUDER  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Z_PROBE_OFFSET_FROM_EXTRUDER   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER -23  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -21  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 6   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 //#define MIN_PROBE_EDGE LULZBOT_MIN_PROBE_EDGE_DISABLED
@@ -823,12 +818,12 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   LULZBOT_Z_CLEARANCE_DEPLOY_PROBE // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  LULZBOT_Z_CLEARANCE_BETWEEN_PROBES // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  10 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     10 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
-#define Z_PROBE_LOW_POINT LULZBOT_Z_PROBE_LOW_POINT // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT 0 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN LULZBOT_Z_PROBE_OFFSET_RANGE_MIN
@@ -989,15 +984,9 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-#if defined(LULZBOT_AUTO_BED_LEVELING_3POINT)
-#define AUTO_BED_LEVELING_3POINT LULZBOT_AUTO_BED_LEVELING_3POINT
-
-#elif defined(LULZBOT_AUTO_BED_LEVELING_LINEAR)
-#define AUTO_BED_LEVELING_LINEAR
-
-#elif defined(LULZBOT_AUTO_BED_LEVELING_BILINEAR)
+//#define AUTO_BED_LEVELING_3POINT
+//#define AUTO_BED_LEVELING_LINEAR
 #define AUTO_BED_LEVELING_BILINEAR
-#endif
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
@@ -1005,7 +994,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#define RESTORE_LEVELING_AFTER_G28 LULZBOT_RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -1042,20 +1031,18 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X LULZBOT_GRID_MAX_POINTS_X
-  #define GRID_MAX_POINTS_Y LULZBOT_GRID_MAX_POINTS_Y
+  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_Y 3
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION LULZBOT_LEFT_PROBE_BED_POSITION
-  #define RIGHT_PROBE_BED_POSITION LULZBOT_RIGHT_PROBE_BED_POSITION
-  #define FRONT_PROBE_BED_POSITION LULZBOT_FRONT_PROBE_BED_POSITION
-  #define BACK_PROBE_BED_POSITION LULZBOT_BACK_PROBE_BED_POSITION
+  #define LEFT_PROBE_BED_POSITION 30
+  #define RIGHT_PROBE_BED_POSITION 250
+  #define FRONT_PROBE_BED_POSITION 30
+  #define BACK_PROBE_BED_POSITION 250
 
   // Probe along the Y axis, advancing X after each column
-  #if defined(LULZBOT_PROBE_Y_FIRST)
-  #define PROBE_Y_FIRST LULZBOT_PROBE_Y_FIRST
-  #endif
-
+  #define PROBE_Y_FIRST
+  
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
     // Beyond the probed grid, continue the implied tilt?
