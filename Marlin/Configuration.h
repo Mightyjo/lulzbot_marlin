@@ -20,6 +20,8 @@
  *
  */
 
+#include "Configuration_BLTouch.h"
+
 #include "Configuration_LulzBot.h"
 #include "Conditionals_LulzBot.h"
 
@@ -734,9 +736,9 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH
+// Include Configuration_BLTouch.h to enable
 #if ENABLED(BLTOUCH)
-  #define BLTOUCH_DELAY 100   // (ms) Enable and increase if needed
+  #define BLTOUCH_DELAY BLTOUCH_SERVO_DELAY   // (ms) Enable and increase if needed
 #endif
 
 /**
@@ -818,19 +820,19 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  10 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     10 // Z Clearance between multiple probes
+#define Z_CLEARANCE_DEPLOY_PROBE   LULZBOT_Z_CLEARANCE_DEPLOY_PROBE // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  LULZBOT_Z_CLEARANCE_BETWEEN_PROBES // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     LULZBOT_Z_CLEARANCE_BETWEEN_PROBES // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
-#define Z_PROBE_LOW_POINT 0 // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT LULZBOT_Z_PROBE_LOW_POINT // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN LULZBOT_Z_PROBE_OFFSET_RANGE_MIN
 #define Z_PROBE_OFFSET_RANGE_MAX LULZBOT_Z_PROBE_OFFSET_RANGE_MAX
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -984,9 +986,9 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT
-//#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR
+//#define AUTO_BED_LEVELING_3POINT LULZBOT_AUTO_BED_LEVELING_3POINT
+//#define AUTO_BED_LEVELING_LINEAR LULZBOT_AUTO_BED_LEVELING_LINEAR
+#define AUTO_BED_LEVELING_BILINEAR LULZBOT_AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
@@ -1001,7 +1003,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
@@ -1031,14 +1033,14 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
-  #define GRID_MAX_POINTS_Y 3
+  #define GRID_MAX_POINTS_X LULZBOT_GRID_MAX_POINTS_X
+  #define GRID_MAX_POINTS_Y LULZBOT_GRID_MAX_POINTS_Y
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 30
-  #define RIGHT_PROBE_BED_POSITION 250
-  #define FRONT_PROBE_BED_POSITION 30
-  #define BACK_PROBE_BED_POSITION 250
+  #define LEFT_PROBE_BED_POSITION LULZBOT_LEFT_PROBE_BED_POSITION
+  #define RIGHT_PROBE_BED_POSITION LULZBOT_RIGHT_PROBE_BED_POSITION
+  #define FRONT_PROBE_BED_POSITION LULZBOT_FRONT_PROBE_BED_POSITION
+  #define BACK_PROBE_BED_POSITION LULZBOT_BACK_PROBE_BED_POSITION
 
   // Probe along the Y axis, advancing X after each column
   #define PROBE_Y_FIRST
@@ -1047,7 +1049,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.

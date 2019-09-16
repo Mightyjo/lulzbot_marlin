@@ -83,6 +83,7 @@
     #define LULZBOT_IS_TAZ
     #define LULZBOT_TAZ_BED
     #define LULZBOT_USE_LCD_DISPLAY
+    #define LULZBOT_USE_AUTOLEVELING
     #define LULZBOT_USE_MIN_ENDSTOPS
     #define LULZBOT_USE_NORMALLY_OPEN_ENDSTOPS
     #define LULZBOT_USE_Z_SCREW
@@ -291,6 +292,12 @@
     #define LULZBOT_AFTER_Z_HOME_Z_ORIGIN         0
 
     #define LULZBOT_HOMING_USES_PROBE_PINS
+#elif defined(LULZBOT_IS_TAZ) && defined(BLTOUCH) && !defined(LULZBOT_USE_HOME_BUTTON)
+    // TAZ 5 safe homing position so fan duct does not hit.
+    #define LULZBOT_Z_SAFE_HOMING
+    #define LULZBOT_Z_SAFE_HOMING_X_POINT         145
+    #define LULZBOT_Z_SAFE_HOMING_Y_POINT         145
+    #define LULZBOT_Z_HOMING_HEIGHT               5
 #elif defined(LULZBOT_IS_TAZ) && !defined(LULZBOT_USE_HOME_BUTTON)
     // TAZ 5 safe homing position so fan duct does not hit.
     #define LULZBOT_Z_SAFE_HOMING
@@ -395,6 +402,12 @@
     #define LULZBOT_BACK_PROBE_BED_POSITION      161
     #define LULZBOT_USE_PRE_GLADIOLA_G29_WORKAROUND
 
+#elif defined(LULZBOT_USE_AUTOLEVELING) && defined(LULZBOT_TAZ_BED) && defined(BLTOUCH)
+    #define LULZBOT_LEFT_PROBE_BED_POSITION       30
+    #define LULZBOT_RIGHT_PROBE_BED_POSITION     250
+    #define LULZBOT_BACK_PROBE_BED_POSITION      250
+    #define LULZBOT_FRONT_PROBE_BED_POSITION      30
+
 #elif defined(LULZBOT_USE_AUTOLEVELING) && defined(LULZBOT_TAZ_BED)
     #define LULZBOT_LEFT_PROBE_BED_POSITION       -9
     #define LULZBOT_RIGHT_PROBE_BED_POSITION     288
@@ -404,10 +417,10 @@
 
 #if defined(LULZBOT_USE_AUTOLEVELING)
     #define LULZBOT_RESTORE_LEVELING_AFTER_G28
-    #define LULZBOT_NOZZLE_CLEAN_FEATURE
+    //#define LULZBOT_NOZZLE_CLEAN_FEATURE
     // Select type of leveling to use:
-    //#define LULZBOT_AUTO_BED_LEVELING_BILINEAR
-    #define LULZBOT_AUTO_BED_LEVELING_LINEAR
+    #define LULZBOT_AUTO_BED_LEVELING_BILINEAR
+    //#define LULZBOT_AUTO_BED_LEVELING_LINEAR
     //#define LULZBOT_AUTO_BED_LEVELING_3POINT
 #endif
 
@@ -431,7 +444,7 @@
   #else
     // Restore the old probe sequence on the TAZ that starts
     // probing on the washer underneath the wiper pad.
-    #define LULZBOT_LAST_PROBE_POINT_ON_BACK_LEFT_CORNER
+    //#define LULZBOT_LAST_PROBE_POINT_ON_BACK_LEFT_CORNER
   #endif
 #endif
 
@@ -1584,7 +1597,7 @@
 
 /******************************** PROBE QUALITY CHECK *************************/
 
-#if defined(LULZBOT_USE_AUTOLEVELING)
+#if defined(LULZBOT_USE_AUTOLEVELING) && !defined(BLTOUCH)
     #define LULZBOT_BED_LEVELING_DECL vector_3 bp[4];
     #define LULZBOT_BED_LEVELING_POINT(i,x,y,z) bp[i] = vector_3(x,y,z);
     #define LULZBOT_BED_LEVELING_SUMMARY \
