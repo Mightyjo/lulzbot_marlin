@@ -517,7 +517,7 @@
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG LULZBOT_USE_XMIN_PLUG
 #define USE_YMIN_PLUG LULZBOT_USE_YMIN_PLUG
-#define USE_ZMIN_PLUG 
+#define USE_ZMIN_PLUG LULZBOT_USE_ZMIN_PLUG
 #define USE_XMAX_PLUG LULZBOT_USE_XMAX_PLUG
 #define USE_YMAX_PLUG LULZBOT_USE_YMAX_PLUG
 #define USE_ZMAX_PLUG LULZBOT_USE_ZMAX_PLUG
@@ -736,7 +736,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-// Include Configuration_BLTouch.h to enable
+#define BLTOUCH BLTOUCH_BLTOUCH
 #if ENABLED(BLTOUCH)
   #define BLTOUCH_DELAY BLTOUCH_SERVO_DELAY   // (ms) Enable and increase if needed
 #endif
@@ -748,7 +748,7 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+#define PROBING_HEATERS_OFF BLTOUCH_PROBING_HEATERS_OFF       // Turn heaters off when probing
 #if ENABLED(PROBING_HEATERS_OFF)
   #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
@@ -785,9 +785,9 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -23  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -21  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 6   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER BLTOUCH_X_PROBE_OFFSET_FROM_EXTRUDER  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER BLTOUCH_Y_PROBE_OFFSET_FROM_EXTRUDER  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER BLTOUCH_Z_PROBE_OFFSET_FROM_EXTRUDER   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 //#define MIN_PROBE_EDGE LULZBOT_MIN_PROBE_EDGE_DISABLED
@@ -1940,7 +1940,7 @@
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY { 300 }
+#define SERVO_DELAY { 300, 300, 300 }
 
 // Servo deactivation
 //

@@ -1,6 +1,8 @@
 #ifndef CONDITIONALS_LULZBOT
 #define CONDITIONALS_LULZBOT
 
+#include "Configuration_BLTouch.h"
+
 /* We define LULZBOT_ macros based on which printer or toolhead we are
  * building for, these macros are then placed where appropriate in the
  * Marlin source.
@@ -292,7 +294,7 @@
     #define LULZBOT_AFTER_Z_HOME_Z_ORIGIN         0
 
     #define LULZBOT_HOMING_USES_PROBE_PINS
-#elif defined(LULZBOT_IS_TAZ) && defined(BLTOUCH) && !defined(LULZBOT_USE_HOME_BUTTON)
+#elif defined(LULZBOT_IS_TAZ) && defined(BLTOUCH_BLTOUCH) && !defined(LULZBOT_USE_HOME_BUTTON)
     // TAZ 5 safe homing position so fan duct does not hit.
     #define LULZBOT_Z_SAFE_HOMING
     #define LULZBOT_Z_SAFE_HOMING_X_POINT         145
@@ -402,7 +404,7 @@
     #define LULZBOT_BACK_PROBE_BED_POSITION      161
     #define LULZBOT_USE_PRE_GLADIOLA_G29_WORKAROUND
 
-#elif defined(LULZBOT_USE_AUTOLEVELING) && defined(LULZBOT_TAZ_BED) && defined(BLTOUCH)
+#elif defined(LULZBOT_USE_AUTOLEVELING) && defined(LULZBOT_TAZ_BED) && defined(BLTOUCH_BLTOUCH)
     #define LULZBOT_LEFT_PROBE_BED_POSITION       30
     #define LULZBOT_RIGHT_PROBE_BED_POSITION     250
     #define LULZBOT_BACK_PROBE_BED_POSITION      250
@@ -1597,7 +1599,7 @@
 
 /******************************** PROBE QUALITY CHECK *************************/
 
-#if defined(LULZBOT_USE_AUTOLEVELING) && !defined(BLTOUCH)
+#if defined(LULZBOT_USE_AUTOLEVELING)
     #define LULZBOT_BED_LEVELING_DECL vector_3 bp[4];
     #define LULZBOT_BED_LEVELING_POINT(i,x,y,z) bp[i] = vector_3(x,y,z);
     #define LULZBOT_BED_LEVELING_SUMMARY \
