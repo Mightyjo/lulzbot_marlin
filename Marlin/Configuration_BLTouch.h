@@ -27,6 +27,9 @@
  */
 #define BLTOUCH_X_PROBE_OFFSET_FROM_EXTRUDER -23  // X offset: -left  +right  [of the nozzle]
 #define BLTOUCH_Y_PROBE_OFFSET_FROM_EXTRUDER -21  // Y offset: -front +behind [the nozzle]
-#define BLTOUCH_Z_PROBE_OFFSET_FROM_EXTRUDER 6   // Z offset: -below +above  [the nozzle]
+#define BLTOUCH_Z_PROBE_OFFSET_FROM_EXTRUDER -0.25   // Z offset: -below +above  [the nozzle]
+#define BLTOUCH_Z_PROBE_LOW_POINT 0
+#define BLTOUCH_Z_PROBE_OFFSET_RANGE_MIN      -2
+#define BLTOUCH_Z_PROBE_OFFSET_RANGE_MAX      5
 
 #endif /* CONFIGURATION_BLTOUCH */

@@ -85,7 +85,9 @@
     #define LULZBOT_IS_TAZ
     #define LULZBOT_TAZ_BED
     #define LULZBOT_USE_LCD_DISPLAY
-    #define LULZBOT_USE_AUTOLEVELING
+    #if defined(BLTOUCH_BLTOUCH)
+      #define LULZBOT_USE_AUTOLEVELING
+    #endif
     #define LULZBOT_USE_MIN_ENDSTOPS
     #define LULZBOT_USE_NORMALLY_OPEN_ENDSTOPS
     #define LULZBOT_USE_Z_SCREW
@@ -469,7 +471,7 @@
  * named Z_MIN_PROBE in Marlin. The Z-Home switch
  * is called Z_MIN_ENDSTOP
  */
-#if defined(LULZBOT_USE_AUTOLEVELING)
+#if defined(LULZBOT_USE_AUTOLEVELING) && !defined(BLTOUCH_BLTOUCH)
     #define LULZBOT_FIX_MOUNTED_PROBE
 #endif // LULZBOT_USE_AUTOLEVELING
 

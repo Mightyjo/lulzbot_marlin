@@ -736,7 +736,9 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH BLTOUCH_BLTOUCH
+#if defined(BLTOUCH_BLTOUCH)
+  #define BLTOUCH
+#endif
 #if ENABLED(BLTOUCH)
   #define BLTOUCH_DELAY BLTOUCH_SERVO_DELAY   // (ms) Enable and increase if needed
 #endif
@@ -748,7 +750,9 @@
  * These options are most useful for the BLTouch probe, but may also improve
  * readings with inductive probes and piezo sensors.
  */
-#define PROBING_HEATERS_OFF BLTOUCH_PROBING_HEATERS_OFF       // Turn heaters off when probing
+#if defined(BLTOUCH_PROBING_HEATERS_OFF)
+#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+#endif
 #if ENABLED(PROBING_HEATERS_OFF)
   #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
@@ -823,13 +827,13 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   LULZBOT_Z_CLEARANCE_DEPLOY_PROBE // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  LULZBOT_Z_CLEARANCE_BETWEEN_PROBES // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     LULZBOT_Z_CLEARANCE_BETWEEN_PROBES // Z Clearance between multiple probes
-//#define Z_AFTER_PROBING           5 // Z position after probing is done
+#define Z_AFTER_PROBING           LULZBOT_Z_CLEARANCE_DEPLOY_PROBE // Z position after probing is done
 
-#define Z_PROBE_LOW_POINT LULZBOT_Z_PROBE_LOW_POINT // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT BLTOUCH_Z_PROBE_LOW_POINT // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN LULZBOT_Z_PROBE_OFFSET_RANGE_MIN
-#define Z_PROBE_OFFSET_RANGE_MAX LULZBOT_Z_PROBE_OFFSET_RANGE_MAX
+#define Z_PROBE_OFFSET_RANGE_MIN BLTOUCH_Z_PROBE_OFFSET_RANGE_MIN
+#define Z_PROBE_OFFSET_RANGE_MAX BLTOUCH_Z_PROBE_OFFSET_RANGE_MAX
 
 // Enable the M48 repeatability test to test probe accuracy
 #define Z_MIN_PROBE_REPEATABILITY_TEST
@@ -986,12 +990,21 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT LULZBOT_AUTO_BED_LEVELING_3POINT
-//#define AUTO_BED_LEVELING_LINEAR LULZBOT_AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR LULZBOT_AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
-
+#if defined(LULZBOT_AUTO_BED_LEVELING_3POINT)
+  #define AUTO_BED_LEVELING_3POINT
+#endif
+#if defined(LULZBOT_AUTO_BED_LEVELING_LINEAR)
+  #define AUTO_BED_LEVELING_LINEAR
+#endif
+#if defined(LULZBOT_AUTO_BED_LEVELING_BILINEAR)
+  #define AUTO_BED_LEVELING_BILINEAR
+#endif
+#if defined(LULZBOT_AUTO_BED_LEVELING_UBL)
+  #define AUTO_BED_LEVELING_UBL
+#endif
+#if defined(LULZBOT_MESH_BED_LEVELING)
+  #define MESH_BED_LEVELING
+#endif
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
