@@ -374,6 +374,14 @@
   float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
 #endif
 
+#if defined(LULZBOT_USE_AUTOLEVELING)
+  #include "vector_3.h"
+#endif
+LULZBOT_EXECUTE_IMMEDIATE_DECL
+LULZBOT_G29_WITH_RETRY_DECL
+LULZBOT_BED_LEVELING_DECL
+LULZBOT_BACKLASH_MEASUREMENT_DECL
+
 bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
@@ -756,7 +764,11 @@ void stop();
 
 void get_available_commands();
 void process_next_command();
+#if defined(LULZBOT_EXECUTE_IMMEDIATE_IMPL)
+void process_parsed_command(bool printok = true);
+#else
 void process_parsed_command();
+#endif
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -2125,14 +2137,14 @@ void clean_up_after_endstop_or_probe_move() {
     bool bltouch_deploy_proc() {
       // Do a DEPLOY
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch DEPLOY requested");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch DEPLOY requested");
       #endif
 
       // Attempt to DEPLOY, wait for DEPLOY_DELAY or ALARM
       if (_bltouch_deploy_query_alarm()) {
         // The deploy might have failed or the probe is already triggered (nozzle too low?)
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
         #endif
 
         bltouch_clear();                               // Get the probe into start condition
@@ -2141,7 +2153,7 @@ void clean_up_after_endstop_or_probe_move() {
         if (_bltouch_deploy_query_alarm()) {
           // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Recovery Failed");
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch Recovery Failed");
           #endif
 
           SERIAL_ECHOLN(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
@@ -2160,7 +2172,7 @@ void clean_up_after_endstop_or_probe_move() {
       // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse
       // is registered.
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("bltouch.deploy_proc() end");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("bltouch.deploy_proc() end");
       #endif
 
       return false; // report success to caller
@@ -2169,7 +2181,7 @@ void clean_up_after_endstop_or_probe_move() {
     bool bltouch_stow_proc() {
       // Do a STOW
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch STOW requested");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch STOW requested");
       #endif
 
       // A STOW will clear a triggered condition in the probe (10ms pulse).
@@ -2182,7 +2194,7 @@ void clean_up_after_endstop_or_probe_move() {
       if (_bltouch_stow_query_alarm()) {
         // The stow might have failed
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch ALARM or TRIGGER after STOW, recovering");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch ALARM or TRIGGER after STOW, recovering");
         #endif
 
         _bltouch_reset();                              // This RESET will then also pull up the pin. If it doesn't
@@ -2192,7 +2204,7 @@ void clean_up_after_endstop_or_probe_move() {
         // Last attempt to STOW
         if (_bltouch_stow_query_alarm()) {             // so if there is now STILL an ALARM condition:
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Recovery Failed");
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch Recovery Failed");
           #endif
 
           SERIAL_ECHOLN(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
@@ -2203,7 +2215,7 @@ void clean_up_after_endstop_or_probe_move() {
       }
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("bltouch.stow_proc() end");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("bltouch.stow_proc() end");
       #endif
 
       return false; // report success to caller
@@ -2216,7 +2228,7 @@ void clean_up_after_endstop_or_probe_move() {
        */
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch STATUS requested");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("BLTouch STATUS requested");
       #endif
 
       _bltouch_set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
@@ -2279,8 +2291,8 @@ void clean_up_after_endstop_or_probe_move() {
       #else
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLNPAIR("last_written_mode - ", (int)bltouch_last_written_mode);
-            DEBUG_ECHOLNPGM("config mode - "
+            SERIAL_ECHOLNPAIR("last_written_mode - ", (int)bltouch_last_written_mode);
+            SERIAL_ECHOLNPGM("config mode - "
               #if ENABLED(BLTOUCH_SET_5V_MODE)
                 "BLTOUCH_SET_5V_MODE"
               #else
@@ -2514,8 +2526,8 @@ void clean_up_after_endstop_or_probe_move() {
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
-
       // Do a first probe at the fast speed
+      #ifndef LULZBOT_DO_PROBE_MOVE
       if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -2525,6 +2537,9 @@ void clean_up_after_endstop_or_probe_move() {
         #endif
         return NAN;
       }
+      #else
+      LULZBOT_DO_PROBE_MOVE(Z_PROBE_SPEED_FAST);
+      #endif
 
       float first_probe_z = current_position[Z_AXIS];
 
@@ -2555,6 +2570,7 @@ void clean_up_after_endstop_or_probe_move() {
     #endif
 
         // move down slowly to find bed
+        #ifndef LULZBOT_DO_PROBE_MOVE
         if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
@@ -2564,6 +2580,10 @@ void clean_up_after_endstop_or_probe_move() {
           #endif
           return NAN;
         }
+        #else
+        LULZBOT_DO_PROBE_MOVE(Z_PROBE_SPEED_SLOW);
+        #endif
+        LULZBOT_BACKLASH_MEASUREMENT
 
     #if MULTIPLE_PROBING > 2
         probes_total += current_position[Z_AXIS];
@@ -2648,7 +2668,16 @@ void clean_up_after_endstop_or_probe_move() {
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
 
     // Move the probe to the starting XYZ
+    #if defined(LULZBOT_Z_CLEARANCE_DEPLOY_PROBE_WORKAROUND)
+    do_probe_raise(Z_CLEARANCE_DEPLOY_PROBE);
+
+    // Move the probe to the given XY
+    do_blocking_move_to_xy(nx, ny);
+    #else
+    // Move the probe to the starting XYZ
     do_blocking_move_to(nx, ny, nz);
+    #endif
+
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
@@ -4402,6 +4431,9 @@ inline void gcode_G4() {
  *
  */
 inline void gcode_G28(const bool always_home_all) {
+  #if defined(LULZBOT_HOMING_USES_PROBE_PINS)
+  LULZBOT_ENABLE_PROBE_PINS(true);
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -4597,6 +4629,11 @@ inline void gcode_G28(const bool always_home_all) {
 
   #endif // !DELTA (gcode_G28)
 
+  #if ENABLED(ULTRA_LCD) && defined(LULZBOT_HOMING_MESSAGE_WORKAROUND)
+    lcd_reset_status();
+  #endif
+
+  LULZBOT_BACKOFF_AFTER_HOME // This must happen before endstops.not_homing()
   endstops.not_homing();
 
   #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -4636,6 +4673,10 @@ inline void gcode_G28(const bool always_home_all) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
+  #endif
+
+  #if defined(LULZBOT_HOMING_USES_PROBE_PINS)
+  LULZBOT_ENABLE_PROBE_PINS(false);
   #endif
 } // G28
 
@@ -5448,7 +5489,11 @@ void home_all_axes() { gcode_G28(true); }
 
       #if ABL_GRID
 
-        bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+        #if defined(LULZBOT_LAST_PROBE_POINT_ON_BACK_LEFT_CORNER)
+        bool zig = !(PR_OUTER_END & 1);  // Always end at LEFT and BACK_PROBE_BED_POSITION
+        #else
+        bool zig = PR_OUTER_END & 1;   // Always end at RIGHT and BACK_PROBE_BED_POSITION
+        #endif
 
         measured_z = 0;
 
@@ -5504,6 +5549,8 @@ void home_all_axes() { gcode_G28(true); }
               eqnAMatrix[abl_probe_index + 2 * abl_points] = 1;
 
               incremental_LSF(&lsf_results, xProbe, yProbe, measured_z);
+
+              LULZBOT_BED_LEVELING_POINT(abl_probe_index, xProbe, yProbe, measured_z)
 
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -5612,6 +5659,8 @@ void home_all_axes() { gcode_G28(true); }
         mean /= abl_points;
 
         if (verbose_level) {
+          LULZBOT_BED_LEVELING_SUMMARY
+
           SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
           SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
           SERIAL_PROTOCOLPGM(" b: ");
@@ -6664,7 +6713,7 @@ inline void gcode_G92() {
   #endif
 
   bool didE = false;
-  #if IS_SCARA || !HAS_POSITION_SHIFT || ENABLED(HANGPRINTER)
+  #if IS_SCARA || !HAS_POSITION_SHIFT || ENABLED(HANGPRINTER) || defined(LULZBOT_G92_BACKWARDS_COMPATIBILITY)
     bool didXYZ = false;
   #else
     constexpr bool didXYZ = false;
@@ -6680,7 +6729,7 @@ inline void gcode_G92() {
           || true // Hangprinter needs to update its line lengths whether current_position changed or not
         #endif
       ) {
-        #if IS_SCARA || !HAS_POSITION_SHIFT || ENABLED(HANGPRINTER)
+        #if IS_SCARA || !HAS_POSITION_SHIFT || ENABLED(HANGPRINTER) || defined(LULZBOT_G92_BACKWARDS_COMPATIBILITY)
           if (i == E_CART) didE = true; else didXYZ = true;
           current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
         #elif HAS_POSITION_SHIFT
@@ -7299,6 +7348,10 @@ inline void gcode_M17() {
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, mode);
     #endif
 
+    #if defined(LULZBOT_AEROSTRUDER_UNLOAD_WORKAROUND)
+    // Retract filament
+    do_pause_e_move(LULZBOT_AEROSTRUDER_UNLOAD_PURGE_LENGTH, LULZBOT_AEROSTRUDER_UNLOAD_PURGE_FEEDRATE);
+    #else
     // Retract filament
     do_pause_e_move(-FILAMENT_UNLOAD_RETRACT_LENGTH, PAUSE_PARK_RETRACT_FEEDRATE);
 
@@ -7307,6 +7360,7 @@ inline void gcode_M17() {
 
     // Quickly purge
     do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.max_feedrate_mm_s[E_AXIS]);
+    #endif
 
     // Unload filament
     #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
@@ -7506,7 +7560,11 @@ inline void gcode_M17() {
    * - Send host action for resume, if configured
    * - Resume the current SD print job, if any
    */
+  #if defined(LULZBOT_ADVANCED_PAUSE_PURGE_WORKAROUND)
+  static void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=0, const int8_t max_beep_count=0) {
+  #else
   static void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0) {
+  #endif
     if (!did_pause_print) return;
 
     // Re-enable the heaters if they timed out
@@ -7516,6 +7574,9 @@ inline void gcode_M17() {
       thermalManager.reset_heater_idle_timer(e);
     }
 
+    #if defined(LULZBOT_ADVANCED_PAUSE_PURGE_WORKAROUND)
+    if(purge_length)
+    #endif
     if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
       // Load the new filament
       load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
@@ -7566,6 +7627,10 @@ inline void gcode_M17() {
         card.startFileprint();
         --did_pause_print;
       }
+    #endif
+
+    #if ENABLED(ULTRA_LCD) && defined(LULZBOT_PAUSED_MESSAGE_WORKAROUND)
+      lcd_reset_status();
     #endif
   }
 
@@ -7801,6 +7866,8 @@ inline void protected_pin_err() {
 inline void gcode_M42() {
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
+
+  LULZBOT_M42_TOGGLES_PROBE_PINS
 
   const pin_t pin_number = parser.byteval('P', LED_PIN);
   if (pin_number < 0) return;
@@ -8610,9 +8677,9 @@ inline void gcode_M109() {
       const bool heating = thermalManager.isHeatingHotend(target_extruder);
       if (heating || !no_wait_for_cooling)
         #if HOTENDS > 1
-          lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), target_extruder + 1);
+          lcd_status_printf_P(0, heating ? PSTR(LULZBOT_EXTRUDER_STR " %i " MSG_HEATING) : PSTR(LULZBOT_EXTRUDER_STR " %i " MSG_COOLING), target_extruder + 1);
         #else
-          lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+          lcd_setstatusPGM(heating ? PSTR(LULZBOT_EXTRUDER_STR " " MSG_HEATING) : PSTR(LULZBOT_EXTRUDER_STR " " MSG_COOLING));
         #endif
     #endif
   }
@@ -10087,12 +10154,20 @@ inline void gcode_M226() {
   if (parser.seen('P')) {
     const int pin = parser.value_int(), pin_state = parser.intval('S', -1);
     if (WITHIN(pin_state, -1, 1) && pin > -1) {
+#if !defined(LULZBOT_NO_PIN_PROTECTION_ON_M226)
       if (pin_is_protected(pin))
         protected_pin_err();
-      else {
+      else
+#endif
+    {
         int target = LOW;
         planner.synchronize();
+#if !defined(LULZBOT_NO_PIN_PROTECTION_ON_M226)
         pinMode(pin, INPUT);
+#else
+      // Don't switch pin mode. Since we are disabling protection,
+      // we should only poll pins that already are inputs.
+#endif
         switch (pin_state) {
           case 1: target = HIGH; break;
           case 0: target = LOW; break;
@@ -10635,6 +10710,10 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
+
+#if defined(LULZBOT_BACKLASH_COMPENSATION_GCODE)
+  LULZBOT_BACKLASH_COMPENSATION_GCODE
+#endif
 
 #if HAS_LEVELING
 
@@ -12628,6 +12707,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = fr_mm_s > 0.0 ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
       if (tmp_extruder != active_extruder) {
+
+#if defined(LULZBOT_NO_MOVE_ON_TOOLHEAD_CHANGE)
+      no_move = true;
+#endif
+
         if (!no_move && axis_unhomed_error()) {
           no_move = true;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -12818,7 +12902,11 @@ inline void gcode_T(const uint8_t tmp_extruder) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void process_parsed_command() {
+void process_parsed_command(
+#if defined(LULZBOT_EXECUTE_IMMEDIATE_IMPL)
+  bool printok
+#endif
+) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -12867,6 +12955,10 @@ void process_parsed_command() {
 
       #if ENABLED(G26_MESH_VALIDATION)
         case 26: gcode_G26(); break;                              // G26: Mesh Validation Pattern
+      #elif defined(LULZBOT_G26_BACKWARDS_COMPATIBILITY)
+        case 26: // G26: LulzBot clear probe fail
+          LULZBOT_G26_RESET_ACTION;
+          break;
       #endif
 
       #if ENABLED(NOZZLE_PARK_FEATURE)
@@ -12876,7 +12968,13 @@ void process_parsed_command() {
       case 28: gcode_G28(false); break;                           // G28: Home one or more axes
 
       #if HAS_LEVELING
-        case 29: gcode_G29(); break;                              // G29: Detailed Z probe
+        case 29:                                                  // G29: Detailed Z probe
+          #if defined(LULZBOT_G29_COMMAND)
+            LULZBOT_G29_COMMAND
+          #else
+            gcode_G29();
+          #endif
+        break;
       #endif
 
       #if HAS_BED_PROBE
@@ -12971,6 +13069,8 @@ void process_parsed_command() {
 
       #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
         case 73: gcode_M73(); break;                              // M73: Set Print Progress %
+      #else
+        case 73: break;
       #endif
       case 75: gcode_M75(); break;                                // M75: Start Print Job Timer
       case 76: gcode_M76(); break;                                // M76: Pause Print Job Timer
@@ -13046,7 +13146,11 @@ void process_parsed_command() {
       case 115: gcode_M115(); break;                              // M115: Capabilities Report
       case 117: gcode_M117(); break;                              // M117: Set LCD message text
       case 118: gcode_M118(); break;                              // M118: Print a message in the host console
-      case 119: gcode_M119(); break;                              // M119: Report Endstop states
+      case 119:                                                   // M119: Report Endstop states
+        LULZBOT_ENABLE_PROBE_PINS(true);
+        gcode_M119();
+        LULZBOT_ENABLE_PROBE_PINS(false);
+        break;
       case 120: gcode_M120(); break;                              // M120: Enable Endstops
       case 121: gcode_M121(); break;                              // M121: Disable Endstops
 
@@ -13179,6 +13283,12 @@ void process_parsed_command() {
         case 420: gcode_M420(); break;                            // M420: Set Bed Leveling Enabled / Fade
       #endif
 
+      #if defined(LULZBOT_BACKLASH_COMPENSATION_GCODE)
+        case 425: // M420: Enable/Disable Backlash Compensation
+          gcode_M425();
+          break;
+      #endif
+
       #if HAS_MESH
         case 421: gcode_M421(); break;                            // M421: Set a Mesh Z value
       #endif
@@ -13295,6 +13405,9 @@ void process_parsed_command() {
   }
 
   KEEPALIVE_STATE(NOT_BUSY);
+  #if defined(LULZBOT_EXECUTE_IMMEDIATE_IMPL)
+  if(printok)
+  #endif
   ok_to_send();
 }
 
@@ -14711,6 +14824,11 @@ void prepare_move_to_destination() {
 
       // allows digital or PWM fan output to be used (see M42 handling)
       WRITE(CONTROLLER_FAN_PIN, speed);
+      #if defined(LULZBOT_CONTROLLERFAN_SPEED_WHEN_ONLY_Z_ACTIVE)
+      if(X_ENABLE_READ != X_ENABLE_ON && Y_ENABLE_READ != Y_ENABLE_ON)
+        analogWrite(CONTROLLER_FAN_PIN, speed ? LULZBOT_CONTROLLERFAN_SPEED_WHEN_ONLY_Z_ACTIVE : 0);
+      else
+      #endif
       analogWrite(CONTROLLER_FAN_PIN, speed);
     }
   }
@@ -15167,6 +15285,8 @@ void kill(const char* lcd_msg) {
     #if ENABLED(USE_WATCHDOG)
       watchdog_reset();
     #endif
+	
+	LULZBOT_ENABLE_Z_MOTOR_ON_STARTUP
   } // Wait for reset
 }
 
@@ -15491,6 +15611,9 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
+      #if defined(LULZBOT_AFTER_ABORT_PRINT_ACTION)
+        LULZBOT_AFTER_ABORT_PRINT_ACTION
+      #endif
     }
 
   #endif // SDSUPPORT
@@ -15550,3 +15673,7 @@ void loop() {
   endstops.event_handler();
   idle();
 }
+
+
+LULZBOT_G29_WITH_RETRY_IMPL
+LULZBOT_EXECUTE_IMMEDIATE_IMPL

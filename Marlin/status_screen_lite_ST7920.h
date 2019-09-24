@@ -882,7 +882,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
       uint8_t progress_bar_percent = 0;
     #endif
 
-    #if ENABLED(SDSUPPORT)
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
       // Progress bar % comes from SD when actively printing
       if (IS_SD_PRINTING()) progress_bar_percent = card.percentDone();
     #endif
